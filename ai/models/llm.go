@@ -1,14 +1,21 @@
 package models
 
-type ChatMessage struct {
-	Role    string // "system" | "user" | "assistant"
-	Content string
+import "github.com/firebase/genkit/go/ai"
+
+type ChatRequest struct {
+	ModelType string
+	ModelName string
+	Question  string
+	Tools     []AITool
 }
 
-type CompletionParams struct {
-	Model       string
-	Temperature float32
-	MaxTokens   int
-	JsonSchema  string // nếu muốn structured output
-	Tools       any    // mở rộng: tool calling
+type ChatResponse struct {
+	Answer     string
+	TotalToken int
+}
+
+type AITool struct {
+	Name        string
+	Description string
+	Function    func(ctx *ai.ToolContext, input any) (string, error)
 }
