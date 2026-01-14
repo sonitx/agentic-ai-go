@@ -1,0 +1,5 @@
+llm-providers:
+  gemini:
+    apikey: "api_key"
+  ollama:
+    server-address: "http://localhost:11434"
