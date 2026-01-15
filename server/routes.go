@@ -8,5 +8,5 @@ func (apiServer *apiServer) initApiRoutes(r *chi.Mux) {
 	r.Get("/ping", apiServer.baseHandler.Ping)
 
 	// Agent API
-	r.Post("/api/{agent}/generate", apiServer.agentHandler.GenerateResponse)
+	r.Post("/api/generate", apiServer.agentHandler.GenerateResponse)
 }

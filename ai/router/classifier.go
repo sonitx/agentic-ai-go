@@ -6,6 +6,7 @@ import (
 	"main/ai/llms"
 	"main/ai/models"
 	"main/utils"
+	"strings"
 )
 
 const (
@@ -33,5 +34,5 @@ func (c *Classifier) Classify(ctx context.Context, question string) (string, err
 	if err != nil {
 		return "", err
 	}
-	return res.Text(), nil
+	return strings.TrimSpace(res.Text()), nil
 }

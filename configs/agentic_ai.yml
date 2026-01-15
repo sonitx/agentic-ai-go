@@ -1,13 +1,13 @@
 agentic-ai:
   router:
     model-type: gemini
-    model-name: gemma-3-1b
+    model-name: googleai/gemma-3-1b-it
   rag:
     model-type: gemini
-    model-name: gemma-3-4b
+    model-name: googleai/gemma-3-4b-it
   direct:
     model-type: gemini
-    model-name: gemma-3-12b
+    model-name: googleai/gemma-3-12b-it
   logic:
     model-type: gemini
-    model-name: gemma-3-27b
+    model-name: googleai/gemma-3-27b-it
