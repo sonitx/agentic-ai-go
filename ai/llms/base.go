@@ -12,20 +12,25 @@ import (
 	"github.com/firebase/genkit/go/plugins/ollama"
 )
 
-func GenerateResponse(ctx context.Context, prompt string, tools []models.AITool) (*ai.ModelResponse, error) {
-	g, modelName := getModel(ctx, utils.AppConfig.ModelConfig)
-	if g == nil {
-		return nil, errors.New("model not found")
+const (
+	ProviderGemini = "gemini"
+	ProviderOllama = "ollama"
+)
+
+func GenerateResponse(ctx context.Context, req models.ChatRequest) (*ai.ModelResponse, error) {
+	g, err := getProvider(ctx, req.ModelType)
+	if err != nil {
+		return nil, err
 	}
 
 	opts := []ai.GenerateOption{
-		ai.WithPrompt(prompt),
-		ai.WithModelName(modelName),
+		ai.WithPrompt(req.Question),
+		ai.WithModelName(req.ModelName),
 	}
 
 	// define tools
-	toolsRef := make([]ai.ToolRef, len(tools))
-	for i, item := range tools {
+	toolsRef := make([]ai.ToolRef, len(req.Tools))
+	for i, item := range req.Tools {
 		toolsRef[i] = genkit.DefineTool(g, item.Name, item.Description, item.Function)
 	}
 
@@ -41,22 +46,23 @@ func GenerateResponse(ctx context.Context, prompt string, tools []models.AITool)
 	return response, nil
 }
 
-func getModel(ctx context.Context, agenticConfig utils.AgenticAI, llmProvider utils.LLMProvider) (*genkit.Genkit, string) {
+func getProvider(ctx context.Context, providerName string) (*genkit.Genkit, error) {
 	var g *genkit.Genkit
-	var modelName string
+	providerConfig := utils.AppConfig.LLMProvider
 
-	if agenticConfig.Router.ModelType == "gemini" {
+	switch providerName {
+	case ProviderGemini:
 		g = genkit.Init(ctx, genkit.WithPlugins(&googlegenai.GoogleAI{
-			APIKey: llmProvider.Gemini.APIKey,
+			APIKey: providerConfig.Gemini.APIKey,
 		}))
-		modelName = agenticConfig.Router.ModelName
-	} else if llmProvider.Ollama.Enable {
+	case ProviderOllama:
 		g = genkit.Init(ctx, genkit.WithPlugins(
 			&ollama.Ollama{
-				ServerAddress: llmProvider.Ollama.ServerAddress,
+				ServerAddress: providerConfig.Ollama.ServerAddress,
 			},
 		))
-		modelName = agenticConfig.Router.ModelName
+	default:
+		return nil, errors.New("provider not found")
 	}
-	return g, modelName
+	return g, nil
 }
